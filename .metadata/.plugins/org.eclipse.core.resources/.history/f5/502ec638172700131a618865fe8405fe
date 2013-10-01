@@ -1,0 +1,19 @@
+import scala.slick.driver.PostgresDriver.simple._
+import Database.threadLocalSession
+
+object Cities extends Table[(Int, String, String, String, Int)]("city") {
+  def id = column[Int]("id", O.PrimaryKey)
+  def name = column[String]("name")
+  def country = column[String]("countrycode")
+  def district = column[String]("district")
+  def population = column[Int]("population")
+  def * = id ~ name ~ country ~ district ~ population
+}
+
+class Database {
+    val mysql = Database.forURL(
+	    "jdbc:mysql://localhost/slick",
+	    user = "indyscala",
+	    driver = "com.mysql.jdbc.Driver"
+	)    
+}

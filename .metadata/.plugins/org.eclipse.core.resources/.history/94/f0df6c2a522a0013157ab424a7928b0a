@@ -1,0 +1,40 @@
+import scala.slick.driver.MySQLDriver.simple._
+import Database.threadLocalSession
+import ddcms.data.mappings.user.{Groups,Roles,Users,UserProfiles}
+import ddcms.data.mappings.user.joins.{UserGroups,UserRoles}
+
+object TestDb {
+  	implicit val session = Database.forURL(
+											"jdbc:mysql://localhost:3306/slick",
+											driver = "com.mysql.jdbc.Driver",
+											user = "root",
+											password = "snow314eagle159"
+									  ).createSession()
+                                                  //> session  : scala.slick.session.Session = scala.slick.session.BaseSession@617
+                                                  //| e32c7
+									  
+	session withTransaction {
+		// Users.ddl.create(session)
+		Groups.ddl.create(session)
+		Roles.ddl.create(session)
+	}                                         //> java.sql.SQLException: Error on rename of './slick/user' to './slick/#sql2-1
+                                                  //| fe-c7' (errno: 152)
+                                                  //| 	at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:1078)
+                                                  //| 	at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4190)
+                                                  //| 	at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4122)
+                                                  //| 	at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2570)
+                                                  //| 	at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2731)
+                                                  //| 	at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2818)
+                                                  //| 	at com.mysql.jdbc.PreparedStatement.executeInternal(PreparedStatement.ja
+                                                  //| va:2157)
+                                                  //| 	at com.mysql.jdbc.PreparedStatement.execute(PreparedStatement.java:1379)
+                                                  //| 
+                                                  //| 	at scala.slick.driver.BasicInvokerComponent$DDLInvoker$$anonfun$drop$1$$
+                                                  //| anonfun$apply$mcV$sp$2$$anonfun$apply$2.apply(BasicInvokerComponent.scala:42
+                                                  //| )
+                                                  //| 	at scala.slick.driver.BasicInvokerComponent$DDLInvoker$$anonfun$drop$1$$
+                                                  //| anonfun$apply$mcV$sp$2$$anonfun$apply$2.apply(BasicInvokerComponent.sc
+                                                  //| Output exceeds cutoff limit.
+	
+	
+}

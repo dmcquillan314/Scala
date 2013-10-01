@@ -1,0 +1,18 @@
+package ddcms.data.mappings.user.joins
+
+import scala.slick.driver.MySQLDriver.simple._
+
+import ddcms.data.mappings.user.{User,Group}
+
+case class UserGroup(userId: Int, groupId: Int)
+
+object UserGroups extends Table[UserGroup]("USER_GROUPS") {
+	def userId = column[Int]("USER_ID")
+	def groupId = column[Int]("GROUP_ID")
+	
+	def * = userId ~ groupId <> (UserGroup, UserGroup.unapply _)
+	
+	// Foreign Keys
+	def user = foreignKey("USER_FK", userId, User)(_.id)
+	def group = foreignKey("GROUP_FK", groupId, Group)(_.id)
+}

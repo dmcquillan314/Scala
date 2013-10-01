@@ -1,0 +1,15 @@
+package ddcms.data.mappings
+
+import scala.slick.driver.MySQLDriver.simple._
+
+object User extends Table[(Int, String, String, Int)]("USER") {
+	def id = column[Int]("USER_ID", O.PrimaryKey)
+	def username = column[String]("USER_NAME")
+	def password = column[String]("PASSWORD")
+	def profileId = column[Int]("USER_PROFILE_ID")
+	
+	def * = id ~ username ~ password ~ profileId
+	
+	// Foreign Keys
+	def userProfile = foreignKey("USER_PROFILE", profileId, UserProfile)(_.id)
+}

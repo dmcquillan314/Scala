@@ -1,0 +1,10 @@
+package week2
+
+
+object lecture4 {
+	class Rational(x: Int, y: Int) {
+		def numer = x
+		def denom = y
+	}
+  println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet
+}

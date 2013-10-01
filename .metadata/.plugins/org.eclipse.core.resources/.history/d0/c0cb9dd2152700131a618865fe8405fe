@@ -1,0 +1,19 @@
+import org.postgresql.ds.PGSimpleDataSource
+import scala.slick.session.Database.forDataSource
+
+case class Sid(idNumber: String) {
+  if( ! idNumber.matches("S\\d"))
+	  throw new java.lang.IllegalArgumentException("Invalid Supplier Number")
+  
+  override def toString = idNumber
+}
+
+object Sandbox {
+
+  def database = {
+    val ds = new PGSimpleDataSource
+    ds.setDatabaseName("sandbox")
+    forDataSource(ds)
+  }                                               //> database: => scala.slick.session.Database
+   
+}

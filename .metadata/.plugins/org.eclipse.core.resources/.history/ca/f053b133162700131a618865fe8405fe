@@ -1,0 +1,17 @@
+import scala.slick.driver.MySQLDriver.simple._
+import scala.slick.session.Database.forDataSource
+
+case class Sid(idNumber: String) {
+  if( ! idNumber.matches("S\\d"))
+	  throw new java.lang.IllegalArgumentException("Invalid Supplier Number")
+  
+  override def toString = idNumber
+}
+
+object Database {
+  val mysql = Database.forURL(
+		"jdbc:mysql://localhost:3306/slick",
+		user = "root",
+		driver = "com.mysql.jdbc.Driver"
+		  )
+}

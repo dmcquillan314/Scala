@@ -1,0 +1,16 @@
+import scala.slick.driver.MySQLDriver.simple._
+import ddcms.data.mappings.user.UserProfiles
+import ddcms.data.mappings.user.joins.{UserGroups,UserProfileserRoles}
+import scala.slick.driver.MySQLDriver.simple._
+
+object TestDb {
+  implicit val session = Database.forURL(
+											"jdbc:mysql://some-host:3306/slick",
+											driver = "com.mysql.jdbc.Driver",
+											user = "root",
+											password = "snow314eagle159"
+									  ).createSession()
+	session.withTransaction {
+		Groups.ddl.create
+	}
+}

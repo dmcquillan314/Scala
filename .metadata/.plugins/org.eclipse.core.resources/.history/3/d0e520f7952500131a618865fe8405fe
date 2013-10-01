@@ -1,0 +1,79 @@
+import scala.slick.driver.PostgresDriver.simple._
+
+object ConnectionWorksheet {
+	val session = Sandbox.database.createSession
+                                                  //> session  : scala.slick.session.Session = scala.slick.session.BaseSession@5fa
+                                                  //| 23485
+  val pquery = tableToQuery(Supplier) map (s => s.snum ~ s.sname)
+                                                  //> pquery  : scala.slick.lifted.Query[scala.slick.lifted.Projection2[String,Str
+                                                  //| ing],(String, String)] = scala.slick.lifted.WrappingQuery@3aead8a8
+  pquery.selectStatement                          //> SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+                                                  //| SLF4J: Defaulting to no-operation (NOP) logger implementation
+                                                  //| SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further de
+                                                  //| tails.
+                                                  //| res0: String = select x2."snum", x2."sname" from "supplier" x2
+
+
+  val query = tableToQuery(Supplier)              //> query  : scala.slick.lifted.Query[Supplier.type,scala.slick.lifted.NothingCo
+                                                  //| ntainer#TableNothing] = scala.slick.lifted.NonWrappingQuery@3f42eb69
+  query.selectStatement                           //> res1: String = select x2."snum", x2."sname", x2."status", x2."city" from "su
+                                                  //| pplier" x2
+  query.first()(session)                          //> res2: scala.slick.lifted.NothingContainer#TableNothing = (S1,Smith,20,London
+                                                  //| )
+	query.foreach( println(_) )(session)      //> (S1,Smith,20,London)
+                                                  //| (S2,Jones,10,Paris)
+                                                  //| (S3,Smith,30,Paris)
+                                                  //| (S4,Clark,20,Rome)
+                                                  //| (S5,Adams,30,Rome)
+                                                  //| (S6,Me!,30,Mount Prospect)
+
+	val rquery = Supplier.filter(p => p.city === "London")
+                                                  //> rquery  : scala.slick.lifted.Query[Supplier.type,scala.slick.lifted.NothingC
+                                                  //| ontainer#TableNothing] = scala.slick.lifted.WrappingQuery@2a3e175e
+	rquery.selectStatement                    //> res3: String = select x2."snum", x2."sname", x2."status", x2."city" from "su
+                                                  //| pplier" x2 where x2."city" = 'London'
+	rquery.foreach(println(_))(session)       //> (S1,Smith,20,London)
+	
+	val prquery = Supplier.filter( _.city === "London").map(_.sname)
+                                                  //> prquery  : scala.slick.lifted.Query[scala.slick.lifted.Column[String],String
+                                                  //| ] = scala.slick.lifted.WrappingQuery@4995afcf
+	prquery.selectStatement                   //> res4: String = select x2."sname" from "supplier" x2 where x2."city" = 'Londo
+                                                  //| n'
+	prquery.foreach( println(_) )(session)    //> Smith
+	
+	val uquery = Supplier.filter(p => p.sname === "Clark" || p.sname === "Adams").map(_.city)
+                                                  //> uquery  : scala.slick.lifted.Query[scala.slick.lifted.Column[String],String]
+                                                  //|  = scala.slick.lifted.WrappingQuery@24cf187e
+	uquery.updateStatement                    //> res5: String = update "supplier" set "city" = ? where ("supplier"."sname" = 
+                                                  //| 'Clark') or ("supplier"."sname" = 'Adams')
+	uquery.update("Rome")(session)            //> res6: Int = 2
+	
+	Supplier.map(s => s.snum ~ s.sname).foreach(println(_))(session)
+                                                  //> (S1,Smith)
+                                                  //| (S2,Jones)
+                                                  //| (S3,Smith)
+                                                  //| (S6,Me!)
+                                                  //| (S4,Clark)
+                                                  //| (S5,Adams)
+	query.foreach(println(_))(session)        //> (S1,Smith,20,London)
+                                                  //| (S2,Jones,10,Paris)
+                                                  //| (S3,Smith,30,Paris)
+                                                  //| (S6,Me!,30,Mount Prospect)
+                                                  //| (S4,Clark,20,Rome)
+                                                  //| (S5,Adams,30,Rome)
+
+	val projection = Supplier.snum ~ Supplier.city ~ Supplier.sname ~ Supplier.status
+                                                  //> projection  : scala.slick.lifted.Projection4[String,String,String,Int] = Pro
+                                                  //| jection4
+	projection.insertStatement                //> res7: String = INSERT INTO "supplier" ("snum","city","sname","status") VALUE
+                                                  //| S (?,?,?,?)
+	//projection.insert("S6", "Mount Prospect", "Me!", 30)(session)
+	query.foreach(println(_))(session)        //> (S1,Smith,20,London)
+                                                  //| (S2,Jones,10,Paris)
+                                                  //| (S3,Smith,30,Paris)
+                                                  //| (S6,Me!,30,Mount Prospect)
+                                                  //| (S4,Clark,20,Rome)
+                                                  //| (S5,Adams,30,Rome)
+	
+	session.close()
+}

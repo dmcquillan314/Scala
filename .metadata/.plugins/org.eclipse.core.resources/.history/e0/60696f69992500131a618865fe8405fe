@@ -1,0 +1,11 @@
+name := "LearningSlick"
+
+version := "1.0"
+
+scalaVersion := "2.10.2"
+
+libraryDependencies += "postgresql" % "postgresql" % "9.1-901.jdbc4"
+
+libraryDependencies += "com.typesafe" % "slick_2.10.0-M4" % "0.10.0-M2"
+
+libraryDependencies += "joda-time" % "joda-time" % "2.3"

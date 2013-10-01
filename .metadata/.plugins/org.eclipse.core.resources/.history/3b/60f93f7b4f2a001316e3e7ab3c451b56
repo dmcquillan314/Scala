@@ -1,0 +1,18 @@
+import ddcms.data.mappings.user._
+import scala.slick.driver.MySQLDriver.simple._
+import Database.threadLocalSession
+object TestDb {
+  implicit val session = Database.forURL(
+											"jdbc:mysql://some-host:3306/slick",
+											driver = "com.mysql.jdbc.Driver",
+											user = "root",
+											password = "snow314eagle159"
+									  ).createSession()
+                                                  //> session  : scala.slick.session.Session = scala.slick.session.BaseSession@4e7
+                                                  //| bd591-
+									  
+	session.withTransaction {
+		UserProfiles.ddl.createStatements
+	}
+	
+}

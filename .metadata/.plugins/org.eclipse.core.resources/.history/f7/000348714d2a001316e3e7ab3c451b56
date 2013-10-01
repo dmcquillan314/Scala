@@ -1,0 +1,10 @@
+package ddcms.data.mappings.user
+
+import scala.slick.driver.MySQLDriver.simple._
+
+object Role extends Table[(Int, String)]("ROLE") {
+	def id = column[Int]("ROLE_ID", O.PrimaryKey)
+	def role = column[String]("ROLE")
+	
+	def * = id ~ role
+}

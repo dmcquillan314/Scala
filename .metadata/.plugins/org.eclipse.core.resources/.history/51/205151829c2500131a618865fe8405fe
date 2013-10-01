@@ -1,0 +1,12 @@
+import org.postgresql.ds.PGSimpleDataSource
+import scala.slick.session.Database.forDataSource
+
+object Sandbox {
+
+  def database = {
+    val ds = new PGSimpleDataSource
+    ds.setDatabaseName("sandbox")
+    forDataSource(ds)
+  }                                               //> database: => scala.slick.session.Database
+   
+}

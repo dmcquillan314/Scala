@@ -1,0 +1,15 @@
+package ddcms.data.mappings.user.joins
+
+import scala.slick.driver.MySQLDriver.simple._
+
+import ddcms.data.mappings.user.{User,Role}
+
+object UserRoles extends Table[(Int, Int)]("USER_ROLES") {
+	def userId = column[Int]("USER_ID")
+	def roleId = column[Int]("ROLE_ID")
+	
+	def * = userId ~ roleId
+	
+	def user = foreignKey("USER_FK", userId, User)(_.id)
+	def role = foreignKey("ROLE_FK", roleId, Role)(_.id)
+}

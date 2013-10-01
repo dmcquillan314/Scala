@@ -1,0 +1,11 @@
+
+implicit object JodaTimeSQLMapper 
+	extends scala.slick.lifted.MappedTypeMapper[org.joda.time.DateTime,java.sql.Timestamp]
+	with scala.slick.lifted.BaseTypeMapper[org.joda.time.DateTime] {
+  
+	def map(j: org.joda.time.DateTime) = new java.sql.Timestamp(j.getMillis)
+	def comap(s: java.sql.Timestamp) = new org.joda.time.DateTime(s.getTime)
+	override def sqlType = Some(java.sql.Types.TIMESTAMP)
+	override def sqlTypeName = Some("timestamp")
+
+}

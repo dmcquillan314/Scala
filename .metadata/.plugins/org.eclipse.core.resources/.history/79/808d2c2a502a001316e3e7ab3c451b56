@@ -1,0 +1,38 @@
+
+
+import scala.slick.driver.MySQLDriver.simple._
+import Database.threadLocalSession
+import ddcms.data.mappings.user.{Groups,Roles,UserProfiles}
+import ddcms.data.mappings.user.joins.{UserGroups,UserRoles}
+
+
+
+object Main extends App {
+	case class User(id: Int, username: String, password: String, profileId: Int)
+	
+	object Users extends Table[User]("USER") {
+		def id = column[Int]("USER_ID", O.PrimaryKey)
+		def username = column[String]("USER_NAME")
+		def password = column[String]("PASSWORD")
+		def profileId = column[Int]("USER_PROFILE_ID")
+		
+		def * = id ~ username ~ password ~ profileId <> (User, User.unapply _)
+		
+		// Foreign Keys
+		def userProfile = foreignKey("USER_PROFILE_FK", profileId, UserProfiles)(_.id)
+		
+	    // A method that returns an instance by specified property
+	    def byId = createFinderBy(_.id)
+	}			
+	
+	implicit val session = Database.forURL(
+											"jdbc:mysql://some-host:3306/slick",
+											driver = "com.mysql.jdbc.Driver",
+											user = "root",
+											password = "snow314eagle159"
+									  ).createSession()
+	println(Users.ddl.createStatements)
+	session.withTransaction {
+		Users.ddl.create
+	}								 
+}

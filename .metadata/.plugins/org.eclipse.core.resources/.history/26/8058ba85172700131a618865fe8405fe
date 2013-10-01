@@ -1,0 +1,10 @@
+import scala.slick.driver.MySQLDriver.simple._
+import Database.threadLocalSession
+
+class Database {
+    val mysql = Database.forURL(
+	    "jdbc:mysql://localhost/slick",
+	    user = "indyscala",
+	    driver = "com.mysql.jdbc.Driver"
+	)    
+}

@@ -1,0 +1,9 @@
+package ddcms.data.mappings
+
+import scala.slick.driver.MySQLDriver.simple._
+
+object UserProfile extends Table[(Int, String, String)] {
+	def id = column[Int]("USER_PROFILE_ID", O.PrimaryKey)
+	def firstName = column[String]("FIRST_NAME")
+	def lastName = column[String]("LAST_NAME")
+}

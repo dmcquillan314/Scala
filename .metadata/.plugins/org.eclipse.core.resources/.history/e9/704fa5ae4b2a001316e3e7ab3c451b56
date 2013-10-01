@@ -1,0 +1,8 @@
+
+import scala.slick.session.Database
+import Database.threadLocalSession
+import ddcms.data.mappings.user.{Group,Role,User,UserProfile}
+import ddcms.data.mappings.user.joins._
+object Main extends App {
+
+}

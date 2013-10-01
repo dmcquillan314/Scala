@@ -1,0 +1,171 @@
+package models
+ 
+// A simple example of Slick 0.11.2 and Scala 2.10 with joins and linked tables by Kirill Grishin
+// This example is based on presentation by Stefan Zeiger
+// http://skillsmatter.com/podcast/home/slick-database-access-with-scala/ac-5894
+ 
+import scala.slick.driver.H2Driver.simple._
+ 
+object Test {
+ 
+  // Here are two simple case classes. Note that Product does not have any reference to ProductProperty,
+  // and ProductProperty has a field that references Product's id (but not an instance of Product class).
+ 
+  case class Product(id: Int, name: String)
+  case class ProductProperty(id: Int, qualifier: String, value: String, productId: Int)
+ 
+  // Ideally we would like to have something like this:
+ 
+  // case class Product(id: Int, name: String, properties: List[ProductProperty])
+  // case class ProductProperty(id: Int, qualifier: String, value: String, product: Product)
+ 
+  //, but (unfourtunatelly) Slick is not an ORM library and at this point it would not be able to map ProductProperties
+  //to Product.properties and vice verse
+ 
+  // Table definitions
+     
+  object Products extends Table[Product]("Products") {
+    // O.PrimaryKey and O.AutoInc instruct DB to set corresponding properties to the columns
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def name = column[String]("name")
+    // A default projection that is used to create instance of the class from rows and back
+    def * = id ~ name <> (Product, Product.unapply _)
+    // A projection to be used in inserts where only 'name' is provided
+    def ins = name returning id
+    // A method that returns an instance by specified property
+    def byId = createFinderBy(_.id)
+  }
+   
+  object ProductProperties extends Table[ProductProperty]("ProductProperties") {
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def qualifier = column[String]("qualifier")
+    def value = column[String]("value")
+    def productId = column[Int]("productId")
+   
+    // A foreign key constraint that instructs DB to enforce foreign key constraint
+    // 'productId' parameter tells Slick to match ProductProperty.productId to Product.id
+    def product = foreignKey("product_fk", productId, Products)(_.id)
+    //                                     ^^^^^^^^^
+ 
+    def * = id ~ qualifier ~ value ~ productId <> (ProductProperty, ProductProperty.unapply _)
+    def ins = qualifier ~ value ~ productId returning id
+  }
+ 
+  // Create a DB session
+  implicit val session = Database.forURL("jdbc:h2:mem:play", driver = "org.h2.Driver").createSession()
+                                                  //> java.lang.ClassNotFoundException: org.h2.Driver
+                                                  //| 	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+                                                  //| 	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+                                                  //| 	at java.security.AccessController.doPrivileged(Native Method)
+                                                  //| 	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+                                                  //| 	at java.lang.ClassLoader.loadClass(ClassLoader.java:423)
+                                                  //| 	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+                                                  //| 	at java.lang.ClassLoader.loadClass(ClassLoader.java:356)
+                                                  //| 	at java.lang.Class.forName0(Native Method)
+                                                  //| 	at java.lang.Class.forName(Class.java:188)
+                                                  //| 	at scala.slick.session.Database$$anon$2.<init>(Database.scala:97)
+                                                  //| 	at scala.slick.session.Database$.forURL(Database.scala:96)
+                                                  //| 	at models.Test$$anonfun$main$1.apply$mcV$sp(models.Test.scala:55)
+                                                  //| 	at org.scalaide.worksheet.runtime.library.WorksheetSupport$$anonfun$$exe
+                                                  //| cute$1.apply$mcV$sp(WorksheetSupport.scala:76)
+                                                  //| 	at org.scalaide.worksheet.runtime.library.
+                                                  //| Output exceeds cutoff limit.
+ 
+  session withTransaction {
+   
+    // Generate data definitons and make Slick create tables in data base
+    Products.ddl.create
+    ProductProperties.ddl.create
+   
+    // Insert into Products
+    val Seq(p1id, p2id, p3id, p4id) = Products.ins.insertAll(
+      ("Milk"),
+      ("Bread"),
+      ("Butter"),
+      ("Sugar")
+    )
+       
+    ProductProperties.ins.insertAll(
+      ("color", "white", p1id),
+      ("color", "brown", p2id),
+      ("color", "yellow", p3id),
+      ("temp", "cold", p3id),
+      ("color", "white", p4id)
+    )
+   
+  }
+ 
+  // Let's create a simple query object; remember that at this point there is no any interaction with DB;
+  // This just represents a query that will be executed when needed. In, fact this query object can be used
+  // with similar query object to compose more complex query objects
+ 
+  val productsQuery: scala.slick.lifted.Query[models.Test.Products.type, models.Test.Product] =
+    for( product <- Products if product.name.startsWith("B")) yield product
+ 
+  // selectStatement function returns a SQL string generated by Slick, so you can have a look at what is really passed to DB;
+  // this is just a string, and no interaction with DB happens here; the value for this example will be:
+ 
+  // select x2."id", x2."name" from "Products" x2 where x2."name" like 'B%' escape '^'
+ 
+  productsQuery.selectStatement: String
+ 
+ 
+  // Now when you call 'list' method on the query object, only then the query is forced to be executed and its result
+  // is returned as a list
+ 
+  productsQuery.list: List[models.Test.Product]
+ 
+  // Let's create a query that gets products and properties asociated with them. But remember,
+  // that a single product will be returned as many times as there are properties for this product; nesting is not supported
+ 
+  // The resulting SQL statement for this will be as follows:
+ 
+  // select x2."id", x2."qualifier", x2."value", x2."productId", x3."id", x3."name"
+  // from "ProductProperties" x2, "Products" x3
+  // where x3."id" = x2."productId"
+ 
+  // And here what is returned for our example
+ 
+  // List(
+  // (ProductProperty(1,color,white,1),Product(1,Milk)),
+  // (ProductProperty(2,color,brown,2),Product(2,Bread)),
+  // (ProductProperty(3,color,yellow,3),Product(3,Butter)),
+  // (ProductProperty(4,temp,cold,3),Product(3,Butter)),
+  // (ProductProperty(5,color,white,4),Product(4,Sugar))
+  // )
+   
+  val productsWithProperty = session withTransaction {
+    for {
+      property <- ProductProperties
+      product  <- property.product
+    } yield (property, product)
+  }
+ 
+  // Get generated SQL
+  productsWithProperty.selectStatement
+ 
+  // You could use groupBy to group results by Product
+  productsWithProperty.list.groupBy( x => x._2 )
+ 
+ 
+  // Now let's create an (efficient) parameterized query. To make query efficient we need to make it be
+  // compiled only once both in Scala code and on DB. The query we are going to make returns products
+  // that have properties with values matching the passed parameter. The following example does that:
+ 
+  val productsByProperty = Parameters[String] flatMap { value =>
+    for {
+      product <- Products
+      property <- ProductProperties
+      if product.id === property.productId && property.value === value
+    } yield product
+  }
+ 
+  // Get products which have properties with values equal to "white"; do not forget to call list method
+  // to make the query execute and return a list of results
+  productsByProperty("white").list
+ 
+  // An example of byId method defined for Products object; don't forget to call list method
+  // to make query execute and return a list of results
+  val productById = Products.byId(2).list
+ 
+}

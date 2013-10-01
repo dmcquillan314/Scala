@@ -1,0 +1,9 @@
+package week2
+
+
+object lecture4 {
+	class Rational(x: Int, y: Int) {                  //> Welcome to the Scala worksheet
+		
+	}
+  println("Welcome to the Scala worksheet")
+}

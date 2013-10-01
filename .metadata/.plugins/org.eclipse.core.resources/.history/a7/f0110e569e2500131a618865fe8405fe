@@ -1,0 +1,15 @@
+import scala.slick.driver.PostgresDriver.simple._
+import scala.slick.driver.PostgresDriver
+import scala.slick.lifted.TypeMapper.StringTypeMapper
+
+object Supplier extends Table[(Sid, String, Int, String)]("supplier") {
+  def snum  = column[Sid]("snum")
+  def sname = column[String]("sname")
+  def status   = column[Int]("status")
+  def city     = column[String]("city")
+  def * = snum ~ sname ~ status ~ city
+}
+
+object StringTypeMapper(PostgresDriver) {
+  def setValue(v: String, p: PositionedParameters) = p.setString(v)
+}

@@ -1,0 +1,11 @@
+package ddcms.data.mappings
+
+import scala.slick.driver.MySQLDriver.simple._
+
+object Group extends Table[(Int, String, String)]("GROUP") {
+	def id = column[Int]("GROUP_ID", O.PrimaryKey)
+	def groupName = column[String]("GROUP_NAME")
+	def groupDesc = column[String]("GROUP_DESC")
+	
+	def * = id ~ groupName ~ groupDesc
+}

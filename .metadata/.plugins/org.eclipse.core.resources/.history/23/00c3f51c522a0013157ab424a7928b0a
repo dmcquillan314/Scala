@@ -1,0 +1,41 @@
+import scala.slick.driver.MySQLDriver.simple._
+import Database.threadLocalSession
+import ddcms.data.mappings.user.{Groups,Roles,Users,UserProfiles}
+import ddcms.data.mappings.user.joins.{UserGroups,UserRoles}
+
+object TestDb {
+  	implicit val session = Database.forURL(
+											"jdbc:mysql://localhost:3306/slick",
+											driver = "com.mysql.jdbc.Driver",
+											user = "root",
+											password = "snow314eagle159"
+									  ).createSession()
+                                                  //> session  : scala.slick.session.Session = scala.slick.session.BaseSession@4e7
+                                                  //| bd591
+									  
+	session withTransaction {
+		Users.ddl.create(session)
+		Groups.ddl.create(session)
+		Roles.ddl.create(session)
+	}                                         //> com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table 'user' alre
+                                                  //| ady exists
+                                                  //| 	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+                                                  //| 
+                                                  //| 	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstruct
+                                                  //| orAccessorImpl.java:57)
+                                                  //| 	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingC
+                                                  //| onstructorAccessorImpl.java:45)
+                                                  //| 	at java.lang.reflect.Constructor.newInstance(Constructor.java:525)
+                                                  //| 	at com.mysql.jdbc.Util.handleNewInstance(Util.java:411)
+                                                  //| 	at com.mysql.jdbc.Util.getInstance(Util.java:386)
+                                                  //| 	at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:1054)
+                                                  //| 	at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4190)
+                                                  //| 	at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4122)
+                                                  //| 	at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2570)
+                                                  //| 	at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2731)
+                                                  //| 	at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2818)
+                                                  //| 	at c
+                                                  //| Output exceeds cutoff limit.
+	
+	
+}

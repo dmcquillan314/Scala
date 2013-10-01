@@ -1,0 +1,39 @@
+import scala.slick.driver.PostgresDriver.simple._
+
+object ConnectionWorksheet {
+	/*val session = Sandbox.database.createSession
+  val pquery = tableToQuery(Supplier) map (s => s.snum ~ s.sname)
+  pquery.selectStatement
+
+
+  val query = tableToQuery(Supplier)
+  query.selectStatement
+  query.first()(session)
+	query.foreach( println(_) )(session)
+
+	val rquery = Supplier.filter(p => p.city === "London")
+	rquery.selectStatement
+	rquery.foreach(println(_))(session)
+	
+	val prquery = Supplier.filter( _.city === "London").map(_.sname)
+	prquery.selectStatement
+	prquery.foreach( println(_) )(session)
+	
+	val uquery = Supplier.filter(p => p.sname === "Clark" || p.sname === "Adams").map(_.city)
+	uquery.updateStatement
+	uquery.update("Rome")(session)
+	
+	Supplier.map(s => s.snum ~ s.sname).foreach(println(_))(session)
+	query.foreach(println(_))(session)
+
+	val projection = Supplier.snum ~ Supplier.city ~ Supplier.sname ~ Supplier.status
+	projection.insertStatement
+	projection.insert("S6", "Mount Prospect", "Me!", 30)(session)
+	query.foreach(println(_))(session)
+	
+	val dquery = Supplier.filter( _.snum === "S6" )
+	dquery.deleteStatement
+	dquery.delete(session)
+	
+	session.close()*/
+}
